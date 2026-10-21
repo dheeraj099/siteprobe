@@ -1,6 +1,6 @@
 import type { Audit, AuditDetail, AuditConfig } from './types'
 
-const BASE = '/api'
+const BASE = `${import.meta.env.VITE_API_URL ?? ''}/api`
 
 async function request<T>(method: string, path: string, body?: unknown): Promise<T> {
   const res = await fetch(`${BASE}${path}`, {
@@ -38,7 +38,7 @@ export const api = {
   },
 
   streamProgress(id: string, onEvent: (event: string, data: unknown) => void): () => void {
-    const es = new EventSource(`/api/audits/${id}/progress`)
+    const es = new EventSource(`${BASE}/audits/${id}/progress`)
     const handler = (eventName: string) => (e: MessageEvent) => onEvent(eventName, JSON.parse(e.data))
     const events = ['init', 'status', 'crawled', 'audited', 'error', 'complete', 'failed', 'progress']
     events.forEach((ev) => es.addEventListener(ev, handler(ev) as EventListener))
